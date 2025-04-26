@@ -2,35 +2,32 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_USERNAME = 'deepank123'
-        DOCKER_HUB_REPO = 'deepank123/my-nodejs-app'
-        DOCKER_CREDENTIALS_ID = 'deb926e5-e1fb-45b0-9a7c-66004a98c694'
+        DOCKER_IMAGE = 'deepank123/my-nodejs-app'
+        DOCKERHUB_CREDENTIALS = 'deb926e5-e1fb-45b0-9a7c-66004a98c694' 
     }
 
     stages {
-        stage('Clone GitHub Repository') {
+        stage('Clone repository') {
             steps {
-                git url: 'https://github.com/Deepankyadav1/deepank_jenkins.git', branch: 'main'
+                git branch: 'main', url: 'https://github.com/Deepankyadav1/deepank_jenkins.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $DOCKER_HUB_REPO .'
-            }
-        }
-
-        stage('Login to DockerHub') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: "$DOCKER_CREDENTIALS_ID", usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
+                script {
+                    docker.build(DOCKER_IMAGE)
                 }
             }
         }
 
-        stage('Push Docker Image') {
+        stage('Push to Docker Hub') {
             steps {
-                sh 'docker push $DOCKER_HUB_REPO'
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                        docker.image(DOCKER_IMAGE).push('latest')
+                    }
+                }
             }
         }
     }
