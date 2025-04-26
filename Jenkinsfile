@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Clone GitHub Repository') {
             steps {
-                git url: 'https://github.com/Deepankyadav1/WebApiJenkins.git', branch: 'main'
+                git url: 'https://github.com/Deepankyadav1/deepank_jenkins.git', branch: 'main'
             }
         }
 
